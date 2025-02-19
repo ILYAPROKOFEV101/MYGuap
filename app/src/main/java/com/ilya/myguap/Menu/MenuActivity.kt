@@ -37,13 +37,26 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.google.android.gms.auth.api.identity.Identity
+import com.ilya.codewithfriends.presentation.profile.ID
+import com.ilya.codewithfriends.presentation.profile.IMG
+import com.ilya.codewithfriends.presentation.profile.UID
+import com.ilya.codewithfriends.presentation.sign_in.GoogleAuthUiClient
 import com.ilya.myguap.Menu.Logic.MyViewModel
+import com.ilya.myguap.Menu.ui.UI.Creat_Group
+import com.ilya.myguap.Menu.ui.UI.DuplicateHomeworkMenu
 import com.ilya.myguap.Menu.ui.UI.GroupSearchScreen
 import com.ilya.myguap.Menu.ui.theme.MyGuapTheme
 
 class MenuActivity : ComponentActivity() {
 
     private val viewModel: MyViewModel by viewModels()
+    private val googleAuthUiClient by lazy {
+        GoogleAuthUiClient(
+            context = applicationContext,
+            oneTapClient = Identity.getSignInClient(applicationContext)
+        )
+    }
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -51,21 +64,40 @@ class MenuActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val navController = rememberNavController()
+
+            val name = UID(userData = googleAuthUiClient.getSignedInUser())
+            val img = IMG(userData = googleAuthUiClient.getSignedInUser())
+            val uid = ID(userData = googleAuthUiClient.getSignedInUser())
+
             MyGuapTheme {
                     NavHost(
                         navController = navController,
-                        startDestination = "start"
+                        startDestination = "info"
                     ) {
                         composable("start") {
+                        Column(modifier = Modifier.fillMaxSize())
+                            {
                             GroupSearchScreen(
                                 viewModel,
                                 navController,
-                                modifier = Modifier,
+                                modifier = Modifier.height(100.dp),
                                 context = this@MenuActivity
                             )
+                             Spacer(modifier = Modifier.height(40.dp))
+                             Creat_Group(
+                                 viewModel,
+                                 modifier = Modifier,
+                                 context = this@MenuActivity,
+                                 uid.toString()
+                             )
+                            }
                         }
                         composable("info") {
-
+                            DuplicateHomeworkMenu(
+                                viewModel,
+                                modifier = Modifier,
+                                context = this@MenuActivity
+                                )
                         }
                     }
 

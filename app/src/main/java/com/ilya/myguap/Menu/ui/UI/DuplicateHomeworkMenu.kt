@@ -35,22 +35,21 @@ import com.ilya.myguap.Menu.Logic.MyViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Creat_Group(
+fun DuplicateHomeworkMenu(
     viewModel: MyViewModel,
     modifier: Modifier = Modifier,
-    context: Context,
-    uid: String
+    context: Context
 ) {
-
 
     val background_color = if (isSystemInDarkTheme()) Color(0xFF191C20)
     else Color(0xFFFFFFFF)
     val text = if (isSystemInDarkTheme())  Color(0xFFFFFFFF) else
         Color(0xFF191C20)
 
-    var groupNumber by remember { mutableStateOf("") }
-    var googleSheetLink by remember { mutableStateOf("") }
-    var communityLink by remember { mutableStateOf("") }
+
+    var sourceGroup by remember { mutableStateOf("") }
+    var taskName by remember { mutableStateOf("") }
+    var taskDescription by remember { mutableStateOf("") }
 
     Column(
         modifier = modifier
@@ -59,9 +58,8 @@ fun Creat_Group(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-
         Text(
-            text = "Create New Group",
+            text = "Duplicate Homework",
             style = MaterialTheme.typography.headlineSmall,
             color = MaterialTheme.colorScheme.onBackground
         )
@@ -69,9 +67,35 @@ fun Creat_Group(
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
-            value = groupNumber,
-            onValueChange = { groupNumber = it },
-            label = { Text("Group Number") },
+            value = sourceGroup,
+            onValueChange = { sourceGroup = it },
+            label = { Text("Source ") },
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = text, // Цвет текста при фокусе
+                unfocusedTextColor = text, // Цвет текста без фокуса
+                focusedLabelColor = text, // Цвет метки при фокусе
+                unfocusedLabelColor = text, // Цвет метки без фокуса
+                focusedContainerColor = background_color, // Цвет фона при фокусе
+                unfocusedContainerColor = background_color, // Цвет фона без фокуса
+                focusedIndicatorColor = text, // Цвет рамки при фокусе
+                unfocusedIndicatorColor = Color.Transparent, // Прозрачная рамка без фокуса
+                cursorColor = text, // Цвет курсора
+                focusedPlaceholderColor = text, // Цвет плейсхолдера при фокусе
+                unfocusedPlaceholderColor = text // Цвет плейсхолдера без фокуса
+            ),
+            modifier = Modifier.fillMaxWidth()
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        OutlinedTextField(
+            value = taskName,
+            onValueChange = { taskName = it },
+            label = { Text("Task Name") },
             colors = TextFieldDefaults.colors(
                 focusedTextColor = text, // Цвет текста при фокусе
                 unfocusedTextColor = text, // Цвет текста без фокуса
@@ -91,31 +115,9 @@ fun Creat_Group(
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = googleSheetLink,
-            onValueChange = { googleSheetLink = it },
-            label = { Text("Google Sheet Link") },
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = text, // Цвет текста при фокусе
-                unfocusedTextColor = text, // Цвет текста без фокуса
-                focusedLabelColor = text, // Цвет метки при фокусе
-                unfocusedLabelColor = text, // Цвет метки без фокуса
-                focusedContainerColor = background_color, // Цвет фона при фокусе
-                unfocusedContainerColor = background_color, // Цвет фона без фокуса
-                focusedIndicatorColor = text, // Цвет рамки при фокусе
-                unfocusedIndicatorColor = Color.Transparent, // Прозрачная рамка без фокуса
-                cursorColor = text, // Цвет курсора
-                focusedPlaceholderColor = text, // Цвет плейсхолдера при фокусе
-                unfocusedPlaceholderColor = text // Цвет плейсхолдера без фокуса
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
-
-        OutlinedTextField(
-            value = communityLink,
-            onValueChange = { communityLink = it },
-            label = { Text("Community Link") },
+            value = taskDescription,
+            onValueChange = { taskDescription = it },
+            label = { Text("Task Description") },
             colors = TextFieldDefaults.colors(
                 focusedTextColor = text, // Цвет текста при фокусе
                 unfocusedTextColor = text, // Цвет текста без фокуса
@@ -136,10 +138,8 @@ fun Creat_Group(
 
         Button(
             onClick = {
-                if (groupNumber.isNotEmpty() && googleSheetLink.isNotEmpty() && communityLink.isNotEmpty()) {
+                if (sourceGroup.isNotEmpty()  && taskName.isNotEmpty() && taskDescription.isNotEmpty()) {
 
-                    Toast.makeText(context, "Group created successfully", Toast.LENGTH_SHORT).show()
-                } else {
                     Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
                 }
             },
@@ -148,7 +148,7 @@ fun Creat_Group(
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
-            Text("Create Group")
+            Text("Duplicate Homework")
         }
     }
 }
