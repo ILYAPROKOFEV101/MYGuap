@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "496849702899",
+    "project_id": "myguapapp",
+    "storage_bucket": "myguapapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:496849702899:android:a15b4c51f7532919f8cc86",
+        "android_client_info": {
+          "package_name": "com.ilya.myguap"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "496849702899-hm08tjes6v5ccrogtq1gu04cbupnt32b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ilya.myguap",
+            "certificate_hash": "804187fcfd88ce72bf4acf4e1260de975f93177f"
+          }
+        },
+        {
+          "client_id": "496849702899-ll9kckk2e8m8nlcr47hf55t0n9j5crjl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAT9SmGz8eaPFtOEdC8E88ycAlMEQsNEdA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "496849702899-ll9kckk2e8m8nlcr47hf55t0n9j5crjl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
