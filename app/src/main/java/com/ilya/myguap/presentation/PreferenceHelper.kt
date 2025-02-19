@@ -96,25 +96,6 @@ object PreferenceHelper {
         return getSharedPreferences(context).getString(KEY_STRING_3, "")
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 
 

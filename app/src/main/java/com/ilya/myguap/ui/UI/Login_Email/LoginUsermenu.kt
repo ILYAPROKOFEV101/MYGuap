@@ -85,7 +85,7 @@ fun LoginUsermenu(
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(background_color), // Используем цвет фона из Material 3 <button class="citation-flag" data-index="1">
+            .background(background_color), // Используем цвет фона из Material 3 <button class="citation-flag" raw-index="1">
         contentAlignment = Alignment.Center
     ) {
         Column(
@@ -100,7 +100,7 @@ fun LoginUsermenu(
             Text(
                 text = stringResource(R.string.singin),
                 fontSize = 35.sp,
-                color = text, // Цвет текста зависит от темы <button class="citation-flag" data-index="7">
+                color = text, // Цвет текста зависит от темы <button class="citation-flag" raw-index="7">
                 fontWeight = FontWeight.Bold,
                 fontFamily = fontFamily,
                 modifier = Modifier.align(Alignment.Start)
@@ -115,7 +115,7 @@ fun LoginUsermenu(
                     .clip(RoundedCornerShape(20.dp))
                     .height(600.dp),
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surface // Цвет карточки <button class="citation-flag" data-index="1">
+                    containerColor = MaterialTheme.colorScheme.surface // Цвет карточки <button class="citation-flag" raw-index="1">
                 ),
                 elevation = CardDefaults.cardElevation(defaultElevation = 10.dp)
             ) {

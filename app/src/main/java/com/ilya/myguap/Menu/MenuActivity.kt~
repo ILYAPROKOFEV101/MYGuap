@@ -79,7 +79,7 @@ class MenuActivity : ComponentActivity() {
             MyGuapTheme {
                     NavHost(
                         navController = navController,
-                        startDestination = "Schedule"
+                        startDestination = "info"
                     ) {
                         composable("start") {
                         Column(modifier = Modifier.fillMaxSize())
@@ -106,7 +106,7 @@ class MenuActivity : ComponentActivity() {
                                 context = this@MenuActivity
                                 )
                         }
-                        composable("Schedule") {
+                        composable("info") {
                             val repository = ScheduleRepository(applicationContext)
                             val viewModel: ScheduleViewModel = viewModel(factory = ScheduleViewModelFactory(repository))
                             GroupScheduleScreen(viewModel)

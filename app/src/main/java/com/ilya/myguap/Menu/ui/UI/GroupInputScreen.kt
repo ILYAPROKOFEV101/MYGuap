@@ -104,7 +104,7 @@ fun GroupInputScreen(
             ) {
                 Button(onClick = {
                     if (groupNumber.isNotEmpty() && subjectName.isNotEmpty() && labNumber.isNotEmpty() && studentName.isNotEmpty()) {
-                        viewModel.addStudentToLab(groupNumber, subjectName, labNumber, studentName)
+
                     } else {
                         Toast.makeText(
                             context,
@@ -118,7 +118,7 @@ fun GroupInputScreen(
 
                 Button(onClick = {
                     if (groupNumber.isNotEmpty() && subjectName.isNotEmpty() && labNumber.isNotEmpty() && studentName.isNotEmpty()) {
-                        viewModel.removeStudentFromLab(groupNumber, subjectName, labNumber, studentName)
+
                     } else {
                         Toast.makeText(
                             context,
@@ -156,7 +156,7 @@ fun GroupInputScreen(
             ) {
                 Button(onClick = {
                     if (groupNumber.isNotEmpty() && taskName.isNotEmpty() && taskDescription.isNotEmpty()) {
-                        viewModel.addHomework(groupNumber, taskName, taskDescription)
+
                     } else {
                         Toast.makeText(
                             context,
@@ -170,7 +170,7 @@ fun GroupInputScreen(
 
                 Button(onClick = {
                     if (groupNumber.isNotEmpty() && taskName.isNotEmpty()) {
-                        viewModel.removeHomework(groupNumber, taskName)
+
                     } else {
                         Toast.makeText(
                             context,

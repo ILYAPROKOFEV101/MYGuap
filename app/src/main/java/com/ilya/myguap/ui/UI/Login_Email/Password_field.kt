@@ -77,7 +77,7 @@ fun PasswordField(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(background_color) // Используем цвет поверхности Material 3 <button class="citation-flag" data-index="1">
+            .background(background_color) // Используем цвет поверхности Material 3 <button class="citation-flag" raw-index="1">
             .padding(horizontal = 30.dp, vertical = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -87,7 +87,7 @@ fun PasswordField(
         Text(
             text = stringResource(id = R.string.password),
             fontSize = 20.sp,
-            color = text, // Цвет текста зависит от темы <button class="citation-flag" data-index="7">
+            color = text, // Цвет текста зависит от темы <button class="citation-flag" raw-index="7">
             textAlign = TextAlign.Start,
             modifier = Modifier.fillMaxWidth(),
             fontFamily = font

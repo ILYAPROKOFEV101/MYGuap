@@ -40,7 +40,6 @@ fun GroupSearchScreen(
     context: Context
 ) {
     var groupNumber by remember { mutableStateOf("") }
-    val searchResult by viewModel.searchResult.collectAsState()
     val background_color = if (isSystemInDarkTheme()) Color(0xFF191C20)
     else Color(0xFFFFFFFF)
     val text = if (isSystemInDarkTheme())  Color(0xFFFFFFFF) else
@@ -88,7 +87,7 @@ fun GroupSearchScreen(
 
         Button(onClick = {
             if (groupNumber.isNotEmpty()) {
-                viewModel.searchGroupByNumber(groupNumber)
+
             } else {
                 Toast.makeText(
                     context,
@@ -102,12 +101,6 @@ fun GroupSearchScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        searchResult?.let { result ->
-            Text(
-                text = result,
-                style = MaterialTheme.typography.bodyMedium,
-                color = if (isDarkTheme) Color.White else Color.Black
-            )
-        }
+
     }
 }
