@@ -35,5 +35,6 @@
     <string name="title_activity_social_map">SocialMapActivity</string>
     <string name="write_user_name">Write friends name</string>
     <string name="login">Log in with Google </string>
+    <string name="title_activity_menu">MenuActivity</string>
 
 </resources>

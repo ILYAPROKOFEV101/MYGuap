@@ -1,5 +1,6 @@
 package com.ilya.myguap
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -68,6 +69,7 @@ import com.ilya.codewithfriends.presentation.sign_in.GoogleAuthUiClient
 import com.ilya.codewithfriends.presentation.sign_in.SignInState
 import com.ilya.codewithfriends.presentation.sign_in.SignInViewModel
 import com.ilya.codewithfriends.presentation.sign_in.UserData
+import com.ilya.myguap.Menu.MenuActivity
 import com.ilya.myguap.ui.theme.ComposeGoogleSignInCleanArchitectureTheme
 
 import com.ilya.reaction.logik.PreferenceHelper.removeUserKey
@@ -307,8 +309,8 @@ class MainActivity : ComponentActivity() {
     @Composable
     fun toshear(userData: UserData?) {
         if (userData?.username != null) {
-            //  val intent = Intent(this@MainActivity, Map_Activity::class.java)
-            // startActivity(intent)
+             val intent = Intent(this@MainActivity, MenuActivity::class.java)
+             startActivity(intent)
         }
     }
 
@@ -330,9 +332,9 @@ class MainActivity : ComponentActivity() {
                 colors = ButtonDefaults.buttonColors(Color(0xFF4CAF50)),
                 shape = RoundedCornerShape(20.dp),
                 onClick = {
-                    //  val intent = Intent(this@MainActivity, Map_Activity::class.java)
-                    //   startActivity(intent)
-                    //   finish()
+                     val intent = Intent(this@MainActivity, MenuActivity::class.java)
+                       startActivity(intent)
+                      finish()
                 }
             )
             {
