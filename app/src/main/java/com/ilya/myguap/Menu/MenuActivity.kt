@@ -50,8 +50,11 @@ import com.ilya.myguap.Menu.Logic.ScheduleRepository
 import com.ilya.myguap.Menu.Logic.ScheduleViewModel
 import com.ilya.myguap.Menu.ui.UI.Creat_Group
 import com.ilya.myguap.Menu.ui.UI.DuplicateHomeworkMenu
+import com.ilya.myguap.Menu.ui.UI.GetGroupDataScreen
 import com.ilya.myguap.Menu.ui.UI.GroupScheduleScreen
 import com.ilya.myguap.Menu.ui.UI.GroupSearchScreen
+import com.ilya.myguap.Menu.ui.UI.RegistrationScreen
+import com.ilya.myguap.Menu.ui.UI.StartScreen
 import com.ilya.myguap.Menu.ui.theme.MyGuapTheme
 
 class MenuActivity : ComponentActivity() {
@@ -79,26 +82,25 @@ class MenuActivity : ComponentActivity() {
             MyGuapTheme {
                     NavHost(
                         navController = navController,
-                        startDestination = "Schedule"
+                        startDestination = "start"
                     ) {
-                        composable("start") {
-                        Column(modifier = Modifier.fillMaxSize())
-                            {
-                            GroupSearchScreen(
-                                viewModel,
-                                navController,
-                                modifier = Modifier.height(100.dp),
-                                context = this@MenuActivity
-                            )
-                             Spacer(modifier = Modifier.height(40.dp))
-                             Creat_Group(
-                                 viewModel,
-                                 modifier = Modifier,
-                                 context = this@MenuActivity,
-                                 uid.toString()
-                             )
-                            }
+                        composable("registtion") {
+                            RegistrationScreen(this@MenuActivity, onRegisterClicked = { fullName ->
+                                if(fullName != "") {
+                                    navController.navigate("start")
+                                }
+                            })
                         }
+                            composable("start") {
+                            Column(modifier = Modifier.fillMaxSize())
+                                {
+                                    StartScreen(
+                                        viewModel = viewModel,
+                                        context = this@MenuActivity,
+                                        uid = uid.toString()
+                                    )
+                                }
+                            }
                         composable("info") {
                             DuplicateHomeworkMenu(
                                 viewModel,

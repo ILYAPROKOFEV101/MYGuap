@@ -31,7 +31,6 @@ import androidx.compose.ui.text.input.KeyboardType.Companion.Text
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ilya.myguap.Menu.Logic.MyViewModel
-import com.ilya.reaction.logik.PreferenceHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -156,9 +155,6 @@ fun Creat_Group(
                     CoroutineScope(Dispatchers.Main).launch {
                         val isCreated = viewModel.createGroup(groupNumber, uid, googleSheetLink, navigator, communityLink)
                         onGroupCreated(isCreated) // Передаем результат через колбэк
-                        if(isCreated) {
-                            PreferenceHelper.saveidgroup(context, groupNumber)
-                        }
                     }
                 } else {
                     Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()

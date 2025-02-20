@@ -24,6 +24,12 @@ class ScheduleViewModel(private val repository: ScheduleRepository) : ViewModel(
         }
     }
 
+    // Метод для проверки существования группы
+    fun isGroupExists(groupName: String): Boolean {
+        val normalizedGroupName = normalizeGroupName(groupName)
+        return scheduleData.value?.groups?.containsKey(normalizedGroupName) == true
+    }
+
     // Метод для поиска расписания с нормализацией ввода
     fun getGroupSchedule(groupName: String): GroupSchedule? {
         val normalizedGroupName = normalizeGroupName(groupName)

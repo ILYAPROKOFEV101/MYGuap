@@ -2,9 +2,7 @@ package com.ilya.reaction.logik
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.os.Message
 import android.util.Log
-import androidx.core.content.edit
 
 
 object PreferenceHelper {
@@ -66,33 +64,33 @@ object PreferenceHelper {
 
 
 
-    fun saveid(context: Context, value: String) {
+    fun savefirstname(context: Context, value: String) {
         val editor = getSharedPreferences(context).edit()
         editor.putString(KEY_STRING_1, value)
         editor.apply()
     }
 
-    fun getSid(context: Context): String? {
+    fun getfirstnamed(context: Context): String? {
         return getSharedPreferences(context).getString(KEY_STRING_1, "")
     }
 
-    fun savename(context: Context, value: String) {
+    fun savelastnme(context: Context, value: String) {
         val editor = getSharedPreferences(context).edit()
         editor.putString(KEY_STRING_2, value)
         editor.apply()
     }
 
-    fun getname(context: Context): String? {
+    fun getlastnme(context: Context): String? {
         return getSharedPreferences(context).getString(KEY_STRING_2, "")
     }
 
-    fun saveimg(context: Context, value: String) {
+    fun saveidgroup(context: Context, value: String) {
         val editor = getSharedPreferences(context).edit()
         editor.putString(KEY_STRING_3, value)
         editor.apply()
     }
 
-    fun getimg(context: Context): String? {
+    fun getidgroup(context: Context): String? {
         return getSharedPreferences(context).getString(KEY_STRING_3, "")
     }
 
