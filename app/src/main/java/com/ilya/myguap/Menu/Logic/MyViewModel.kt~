@@ -78,30 +78,18 @@ class MyViewModel : ViewModel() {
 
 
 
-        
+
 
     suspend fun getGroupData(groupNumber: String): Map<String, Any?>? {
-        return try {
-            // Нормализуем имя группы
-            val normalizedGroupName = normalizeGroupName(groupNumber)
+        val normalizedGroupName = GroupNameNormalizer.normalize(groupNumber)
+        if (normalizedGroupName.isEmpty()) return null
 
-            // Проверяем, что нормализованное имя не пустое
-            if (normalizedGroupName.isEmpty()) {
-                return null // Если цифр нет, группа не может существовать
-            }
-
-            // Получаем ссылку на группу в базе данных
-            val ref = database.getReference("groups/$normalizedGroupName")
-            val snapshot = ref.get().await() // Асинхронно получаем данные
-
-            if (snapshot.exists()) {
-                // Преобразуем данные в Map<String, Any?>
-                snapshot.value as? Map<String, Any?>?
-            } else {
-                null // Группа не существует
-            }
-        } catch (e: Exception) {
-            null // Ошибка при получении данных
+        val ref = database.getReference("groups/$normalizedGroupName")
+        val snapshot = ref.get().await()
+        return if (snapshot.exists()) {
+            snapshot.value as? Map<String, Any?>
+        } else {
+            null
         }
     }
 
@@ -111,28 +99,19 @@ class MyViewModel : ViewModel() {
      * @param groupNumber - Номер группы
      * @param userUid - UID пользователя
      */
-    fun addUserToGroup(groupNumber: String, userUid: String) {
-        val ref = database.getReference("groups/$groupNumber/users")
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val users = snapshot.getValue<List<String>>() ?: emptyList()
-                if (!users.contains(userUid)) {
-                    ref.push().setValue(userUid)
-                        .addOnSuccessListener {
-                            println("User added to group successfully")
-                        }
-                        .addOnFailureListener { error ->
-                            println("Failed to add user to group: ${error.message}")
-                        }
-                } else {
-                    println("User is already in the group")
-                }
-            }
+    suspend fun addUserToGroup(groupNumber: String, userUid: String): Boolean {
+        val normalizedGroupName = GroupNameNormalizer.normalize(groupNumber)
+        if (normalizedGroupName.isEmpty()) return false
 
-            override fun onCancelled(error: DatabaseError) {
-                println("Database error: ${error.message}")
-            }
-        })
+        val ref = database.getReference("groups/$normalizedGroupName/users")
+        val snapshot = ref.get().await()
+        val users = snapshot.getValue<List<String>>() ?: emptyList()
+
+        if (!users.contains(userUid)) {
+            ref.push().setValue(userUid).await()
+            return true
+        }
+        return false
     }
 
     /**
@@ -141,28 +120,19 @@ class MyViewModel : ViewModel() {
      * @param groupNumber - Номер группы
      * @param helperUid - UID помощника
      */
-    fun appointHelper(groupNumber: String, helperUid: String) {
-        val ref = database.getReference("groups/$groupNumber/админы/помощники")
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                val helpers = snapshot.getValue<List<String>>() ?: emptyList()
-                if (!helpers.contains(helperUid)) {
-                    ref.push().setValue(helperUid)
-                        .addOnSuccessListener {
-                            println("Helper appointed successfully")
-                        }
-                        .addOnFailureListener { error ->
-                            println("Failed to appoint helper: ${error.message}")
-                        }
-                } else {
-                    println("Helper is already appointed")
-                }
-            }
+    suspend fun appointHelper(groupNumber: String, helperUid: String): Boolean {
+        val normalizedGroupName = GroupNameNormalizer.normalize(groupNumber)
+        if (normalizedGroupName.isEmpty()) return false
 
-            override fun onCancelled(error: DatabaseError) {
-                println("Database error: ${error.message}")
-            }
-        })
+        val ref = database.getReference("groups/$normalizedGroupName/админы/помощники")
+        val snapshot = ref.get().await()
+        val helpers = snapshot.getValue<List<String>>() ?: emptyList()
+
+        if (!helpers.contains(helperUid)) {
+            ref.push().setValue(helperUid).await()
+            return true
+        }
+        return false
     }
 
     /**
@@ -171,27 +141,17 @@ class MyViewModel : ViewModel() {
      * @param groupNumber - Номер группы
      * @param subjectName - Название предмета
      */
-    fun createSubject(groupNumber: String, subjectName: String) {
-        val ref = database.getReference("groups/$groupNumber/subjects/$subjectName")
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (!snapshot.exists()) {
-                    ref.setValue(mapOf("labs" to emptyMap<String, Any>(), "homeworks" to emptyMap<String, Any>()))
-                        .addOnSuccessListener {
-                            println("Subject created successfully")
-                        }
-                        .addOnFailureListener { error ->
-                            println("Failed to create subject: ${error.message}")
-                        }
-                } else {
-                    println("Subject already exists")
-                }
-            }
+    suspend fun createSubject(groupNumber: String, subjectName: String): Boolean {
+        val normalizedGroupName = GroupNameNormalizer.normalize(groupNumber)
+        if (normalizedGroupName.isEmpty()) return false
 
-            override fun onCancelled(error: DatabaseError) {
-                println("Database error: ${error.message}")
-            }
-        })
+        val ref = database.getReference("groups/$normalizedGroupName/subjects/$subjectName")
+        val snapshot = ref.get().await()
+        if (!snapshot.exists()) {
+            ref.setValue(mapOf("labs" to emptyMap<String, Any>(), "homeworks" to emptyMap<String, Any>())).await()
+            return true
+        }
+        return false
     }
 
     /**
@@ -202,27 +162,17 @@ class MyViewModel : ViewModel() {
      * @param labName - Название лабораторной работы
      * @param deadline - Дедлайн для лабораторной работы
      */
-    fun createLab(groupNumber: String, subjectName: String, labName: String, deadline: String) {
-        val ref = database.getReference("groups/$groupNumber/subjects/$subjectName/labs/$labName")
-        ref.addListenerForSingleValueEvent(object : ValueEventListener {
-            override fun onDataChange(snapshot: DataSnapshot) {
-                if (!snapshot.exists()) {
-                    ref.setValue(mapOf("очередь" to emptyList<String>(), "делайн" to deadline))
-                        .addOnSuccessListener {
-                            println("Lab created successfully")
-                        }
-                        .addOnFailureListener { error ->
-                            println("Failed to create lab: ${error.message}")
-                        }
-                } else {
-                    println("Lab already exists")
-                }
-            }
+    suspend fun createLab(groupNumber: String, subjectName: String, labName: String, deadline: String): Boolean {
+        val normalizedGroupName = GroupNameNormalizer.normalize(groupNumber)
+        if (normalizedGroupName.isEmpty()) return false
 
-            override fun onCancelled(error: DatabaseError) {
-                println("Database error: ${error.message}")
-            }
-        })
+        val ref = database.getReference("groups/$groupNumber/subjects/$subjectName/labs/$labName")
+        val snapshot = ref.get().await()
+        if (!snapshot.exists()) {
+            ref.setValue(mapOf("очередь" to emptyList<String>(), "делайн" to deadline)).await()
+            return true
+        }
+        return false
     }
 
     /**

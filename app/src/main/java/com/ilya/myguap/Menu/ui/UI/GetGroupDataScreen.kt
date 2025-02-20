@@ -11,14 +11,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,18 +36,37 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.ilya.myguap.Menu.DataModel.GroupData
 import com.ilya.myguap.Menu.Logic.MyViewModel
+import com.ilya.reaction.logik.PreferenceHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-
 
 @Composable
 fun GetGroupDataScreen(
     viewModel: MyViewModel,
     context: Context
 ) {
-    var groupNumber by remember { mutableStateOf("") }
+    // Получаем номер группы из настроек
+    val groupNumber = PreferenceHelper.getidgroup(context)
     var groupData by remember { mutableStateOf<Map<String, Any?>?>(null) }
+    var isLoading by remember { mutableStateOf(true) } // Флаг загрузки
+    var isError by remember { mutableStateOf(false) } // Флаг ошибки
+
+    // Запускаем корутину с помощью LaunchedEffect
+    LaunchedEffect(key1 = groupNumber) {
+        try {
+            // Получаем данные группы
+            groupData = viewModel.getGroupData(groupNumber.toString())
+            if (groupData == null) {
+                isError = true
+            }
+        } catch (e: Exception) {
+            isError = true
+        } finally {
+            isLoading = false // Загрузка завершена
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -60,43 +82,29 @@ fun GetGroupDataScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        OutlinedTextField(
-            value = groupNumber,
-            onValueChange = { groupNumber = it },
-            label = { Text("Group Number") },
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Button(
-            onClick = {
-                CoroutineScope(Dispatchers.Main).launch {
-                    groupData = viewModel.getGroupData(groupNumber)
-                    if (groupData == null) {
-                        Toast.makeText(context, "Group not found", Toast.LENGTH_SHORT).show()
-                    } else {
-                        Toast.makeText(context, "Group data retrieved", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary
+        if (isLoading) {
+            // Показываем индикатор загрузки
+            CircularProgressIndicator(
+                modifier = Modifier.size(48.dp),
+                color = MaterialTheme.colorScheme.primary
             )
-        ) {
-            Text("Get Group Data")
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        groupData?.let { data ->
-            Column {
-                Text("Главный админ: ${data["админы"]?.let { (it as? Map<*, *>)?.get("главныйАдмин") }}")
-                Text("Помощники: ${data["админы"]?.let { (it as? Map<*, *>)?.get("помощники") ?: "None" }}")
-                Text("Users: ${(data["users"] as? List<*>)?.joinToString(", ") ?: "None"}")
-                Text("Google Sheet Link: ${data["googletabel"]}")
-                Text("Community Link: ${data["communityLink"]}")
-                Text("Navigation: ${data["navigation"]}")
+        } else if (isError) {
+            // Показываем сообщение об ошибке
+            Text(
+                text = "Failed to load group data",
+                color = MaterialTheme.colorScheme.error
+            )
+        } else {
+            // Отображаем данные группы
+            groupData?.let { data ->
+                Column {
+                    Text("Главный админ: ${data["админы"]?.let { (it as? Map<*, *>)?.get("главныйАдмин") }}")
+                    Text("Помощники: ${data["админы"]?.let { (it as? Map<*, *>)?.get("помощники") ?: "None" }}")
+                    Text("Users: ${(data["users"] as? List<*>)?.joinToString(", ") ?: "None"}")
+                    Text("Google Sheet Link: ${data["googletabel"]}")
+                    Text("Community Link: ${data["communityLink"]}")
+                    Text("Navigation: ${data["navigation"]}")
+                }
             }
         }
     }

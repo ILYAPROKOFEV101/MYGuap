@@ -113,6 +113,11 @@ fun StartScreen(
                     onClick = {
                         // Логика для вступления в группу
                         Toast.makeText(context, "You have joined the group!", Toast.LENGTH_SHORT).show()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            viewModel.addUserToGroup(groupNumber, uid)
+                        }
+
+                        PreferenceHelper.saveidgroup(context, groupNumber)
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.secondary,

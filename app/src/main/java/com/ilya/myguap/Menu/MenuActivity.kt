@@ -56,6 +56,7 @@ import com.ilya.myguap.Menu.ui.UI.GroupSearchScreen
 import com.ilya.myguap.Menu.ui.UI.RegistrationScreen
 import com.ilya.myguap.Menu.ui.UI.StartScreen
 import com.ilya.myguap.Menu.ui.theme.MyGuapTheme
+import com.ilya.reaction.logik.PreferenceHelper
 
 class MenuActivity : ComponentActivity() {
 
@@ -78,12 +79,15 @@ class MenuActivity : ComponentActivity() {
             val name = UID(userData = googleAuthUiClient.getSignedInUser())
             val img = IMG(userData = googleAuthUiClient.getSignedInUser())
             val uid = ID(userData = googleAuthUiClient.getSignedInUser())
-
+            val nameofmygroup = PreferenceHelper.getidgroup(this)
             MyGuapTheme {
                     NavHost(
                         navController = navController,
-                        startDestination = "start"
+                        startDestination = if(nameofmygroup !="") "mygroup" else "start"
                     ) {
+                        composable("mygroup") {
+                            GetGroupDataScreen(viewModel = viewModel, context = this@MenuActivity)
+                        }
                         composable("registtion") {
                             RegistrationScreen(this@MenuActivity, onRegisterClicked = { fullName ->
                                 if(fullName != "") {
@@ -91,7 +95,7 @@ class MenuActivity : ComponentActivity() {
                                 }
                             })
                         }
-                            composable("start") {
+                        composable("start") {
                             Column(modifier = Modifier.fillMaxSize())
                                 {
                                     StartScreen(
