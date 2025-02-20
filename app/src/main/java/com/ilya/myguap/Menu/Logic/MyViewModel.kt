@@ -1,5 +1,6 @@
 package com.ilya.myguap.Menu.Logic
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.database.DataSnapshot
@@ -41,43 +42,138 @@ class MyViewModel : ViewModel() {
         communityLink: String
     ): Boolean {
         return try {
-            // Нормализуем имя группы (оставляем только цифры и добавляем префикс "С")
             val normalizedGroupName = normalizeGroupName(groupNumber)
-
-            // Проверяем, что нормализованное имя не пустое
             if (normalizedGroupName.isEmpty()) {
-                return false // Если цифр нет, группа не может быть создана
+                Log.d("CreateGroup", "Некорректное название группы")
+                return false
             }
 
-            // Получаем ссылку на группу в базе данных
             val ref = database.getReference("groups/$normalizedGroupName")
-            val snapshot = ref.get().await() // Асинхронно получаем данные
+            val snapshot = ref.get().await()
 
+            // Если группа не существует, создаем ее с полями subjects и homeWork
             if (!snapshot.exists()) {
-                // Если группа не существует, создаем её
+                Log.d("CreateGroup", "Группа $normalizedGroupName не существует. Создаем новую группу.")
+
                 val newGroup = mapOf(
                     "админы" to mapOf(
                         "главныйАдмин" to creatorUid,
                         "помощники" to emptyList<String>()
                     ),
                     "users" to listOf(creatorUid),
-                    "subjects" to emptyMap<String, Any>(),
+                    "subjects" to mapOf("placeholder" to true), // Заглушка для создания subjects
+                    "homeWork" to emptyMap<String, String>(),   // Пустое поле для домашних заданий
                     "googletabel" to googleSheetLink,
                     "communityLink" to communityLink,
                     "navigation" to navigation
                 )
-                ref.setValue(newGroup).await() // Асинхронно создаем группу
-                true // Успешно создано
-            } else {
-                false // Группа уже существует
+                ref.setValue(newGroup).await()
+                Log.d("CreateGroup", "Группа $normalizedGroupName успешно создана со всеми полями.")
+                return true
             }
+
+            // Если группа уже существует, проверяем наличие поля subjects
+            Log.d("CreateGroup", "Группа $normalizedGroupName уже существует. Проверяем поле subjects.")
+            val subjectsRef = ref.child("subjects")
+            val subjectsSnapshot = subjectsRef.get().await()
+
+            // Если subjects не существует, создаем его с заглушкой
+            if (!subjectsSnapshot.exists()) {
+                Log.d("CreateGroup", "Поле subjects отсутствует. Создаем поле subjects с заглушкой.")
+                subjectsRef.setValue(mapOf("placeholder" to true)).await() // Заглушка
+                Log.d("CreateGroup", "Поле subjects успешно создано.")
+            } else {
+                Log.d("CreateGroup", "Поле subjects уже существует.")
+            }
+
+            // Проверяем наличие поля homeWork
+            Log.d("CreateGroup", "Проверяем поле homeWork.")
+            val homeWorkRef = ref.child("homeWork")
+            val homeWorkSnapshot = homeWorkRef.get().await()
+
+            // Если homeWork не существует, создаем его как пустой объект
+            if (!homeWorkSnapshot.exists()) {
+                Log.d("CreateGroup", "Поле homeWork отсутствует. Создаем пустое поле homeWork.")
+                homeWorkRef.setValue(emptyMap<String, String>()).await()
+                Log.d("CreateGroup", "Поле homeWork успешно создано.")
+            } else {
+                Log.d("CreateGroup", "Поле homeWork уже существует.")
+            }
+
+            Log.d("CreateGroup", "Группа $normalizedGroupName успешно обработана.")
+            true
         } catch (e: Exception) {
-            false // Ошибка при создании
+            Log.e("CreateGroup", "Ошибка при создании или обновлении группы", e)
+            false
         }
     }
 
 
 
+
+    suspend fun addSubject(
+        groupNumber: String,
+        subjectName: String
+    ): Boolean {
+        return try {
+            val normalizedGroupName = normalizeGroupName(groupNumber)
+            if (normalizedGroupName.isEmpty()) {
+                return false
+            }
+            // Ссылка на узел предметов в группе
+            val ref = database.getReference("groups/$normalizedGroupName/subjects/$subjectName")
+            // Устанавливаем пустой объект для нового предмета
+            ref.setValue(emptyMap<String, Any>()).await()
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+    suspend fun addLab(groupNumber: String, subjectName: String, labName: String): Boolean {
+        return try {
+            // Нормализуем имя группы (оставляем только цифры и добавляем префикс "С")
+            val normalizedGroupName = normalizeGroupName(groupNumber)
+            if (normalizedGroupName.isEmpty()) {
+                return false // Если цифр нет, группа не может быть создана
+            }
+
+            // Получаем ссылку на группу в базе данных
+            val ref = database.getReference("groups/$normalizedGroupName")
+
+            // Получаем текущие данные группы
+            val snapshot = ref.get().await()
+            if (snapshot.exists()) {
+                val subjects = snapshot.child("subjects").getValue<Map<String, Any>>() ?: emptyMap()
+
+                // Проверяем, что предмет существует
+                if (subjects.containsKey(subjectName)) {
+                    val currentLabs = (subjects[subjectName] as? List<String>) ?: emptyList()
+
+                    // Проверяем, что лабораторная работа еще не существует
+                    if (!currentLabs.contains(labName)) {
+                        val updatedLabs = currentLabs.toMutableList().apply {
+                            add(labName)
+                        }
+
+                        // Обновляем данные в Firebase
+                        ref.child("subjects").child(subjectName).setValue(updatedLabs).await()
+                        return true // Успешно добавлено
+                    } else {
+                        return false // Лабораторная работа уже существует
+                    }
+                } else {
+                    return false // Предмет не существует
+                }
+            } else {
+                return false // Группа не существует
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return false // Ошибка при добавлении
+        }
+    }
 
 
     suspend fun getGroupData(groupNumber: String): Map<String, Any?>? {
@@ -93,25 +189,65 @@ class MyViewModel : ViewModel() {
         }
     }
 
+
+
+
     /**
      * Добавление пользователя в группу
      *
      * @param groupNumber - Номер группы
      * @param userUid - UID пользователя
      */
-    suspend fun addUserToGroup(groupNumber: String, userUid: String): Boolean {
-        val normalizedGroupName = GroupNameNormalizer.normalize(groupNumber)
-        if (normalizedGroupName.isEmpty()) return false
 
-        val ref = database.getReference("groups/$normalizedGroupName/users")
-        val snapshot = ref.get().await()
-        val users = snapshot.getValue<List<String>>() ?: emptyList()
 
-        if (!users.contains(userUid)) {
-            ref.push().setValue(userUid).await()
-            return true
+    suspend fun addHomeWork(
+        groupNumber: String,
+        subjectName: String,
+        task: String
+    ): Boolean {
+        return try {
+            val normalizedGroupName = normalizeGroupName(groupNumber)
+            if (normalizedGroupName.isEmpty()) {
+                return false
+            }
+
+            val ref = database.getReference("groups/$normalizedGroupName/homeWork/$subjectName")
+            ref.setValue(task).await()
+            Log.d("AddHomeWork", "Домашнее задание для предмета $subjectName успешно добавлено.")
+            true
+        } catch (e: Exception) {
+            Log.e("AddHomeWork", "Ошибка при добавлении домашнего задания", e)
+            false
         }
-        return false
+    }
+
+
+    fun addUserToGroup(groupName: String, userId: String) {
+        val normalizedGroupName = GroupNameNormalizer.normalize(groupName)
+        val groupRef = FirebaseDatabase.getInstance().getReference("groups/$normalizedGroupName/users")
+
+        // Получаем текущих пользователей группы
+        groupRef.addListenerForSingleValueEvent(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    // Если данные существуют, преобразуем их в Map
+                    val usersMap = snapshot.getValue<Map<String, Boolean>>()
+                    val updatedUsersMap = usersMap?.toMutableMap() ?: mutableMapOf()
+                    updatedUsersMap[userId] = true
+
+                    // Обновляем данные в Firebase
+                    groupRef.setValue(updatedUsersMap)
+                } else {
+                    // Если данные отсутствуют, создаем новую карту
+                    val newUsersMap = mapOf(userId to true)
+                    groupRef.setValue(newUsersMap)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                Log.e("Firebase", "Failed to read value.", error.toException())
+            }
+        })
     }
 
     /**

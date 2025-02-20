@@ -76,21 +76,29 @@ class MenuActivity : ComponentActivity() {
 
             val navController = rememberNavController()
 
-            val name = UID(userData = googleAuthUiClient.getSignedInUser())
             val img = IMG(userData = googleAuthUiClient.getSignedInUser())
             val uid = ID(userData = googleAuthUiClient.getSignedInUser())
             val nameofmygroup = PreferenceHelper.getidgroup(this)
+            val name = PreferenceHelper.getfirstnamed(this)
+            val lastname = PreferenceHelper.getlastnme(this)
             MyGuapTheme {
                     NavHost(
                         navController = navController,
-                        startDestination = if(nameofmygroup !="") "mygroup" else "start"
+                        startDestination = when {
+                            nameofmygroup != "" -> "mygroup"
+                            name != "" && lastname != "" -> "start"
+                            else -> "registtion"
+                        }
                     ) {
                         composable("mygroup") {
-                            GetGroupDataScreen(viewModel = viewModel, context = this@MenuActivity)
+                            GetGroupDataScreen(viewModel = viewModel, context = this@MenuActivity, uid.toString())
                         }
                         composable("registtion") {
                             RegistrationScreen(this@MenuActivity, onRegisterClicked = { fullName ->
                                 if(fullName != "") {
+                                    if(nameofmygroup != ""){
+                                        navController.navigate("mygroup")
+                                    } else
                                     navController.navigate("start")
                                 }
                             })
@@ -101,7 +109,8 @@ class MenuActivity : ComponentActivity() {
                                     StartScreen(
                                         viewModel = viewModel,
                                         context = this@MenuActivity,
-                                        uid = uid.toString()
+                                        uid = uid.toString(),
+                                        navController
                                     )
                                 }
                             }
