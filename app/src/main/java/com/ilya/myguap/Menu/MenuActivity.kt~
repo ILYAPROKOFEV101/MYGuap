@@ -93,7 +93,7 @@ class MenuActivity : ComponentActivity() {
                         }
                     ) {
                         composable("mygroup") {
-                            GetGroupDataScreen(viewModel = viewModel, context = this@MenuActivity, uid.toString(),ScheduleviewModel, navController )
+                            GetGroupDataScreen(viewModel = viewModel, context = this@MenuActivity, uid.toString(),ScheduleviewModel )
                         }
                         composable("registtion") {
                             RegistrationScreen(this@MenuActivity, onRegisterClicked = { fullName ->

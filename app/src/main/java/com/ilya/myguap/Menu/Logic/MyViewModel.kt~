@@ -130,13 +130,6 @@ class MyViewModel : ViewModel() {
     }
 
 
-    // Метод для выхода из группы (удаление UID из users и админов)
-suspend fun leaveGroup(groupNumber: String, userUid: String): Boolean {
-        return try {
-            val normalizedGroupName = normalizeGroupName(groupNumber)
-            if (normalizedGroupName.isEmpty()) return false
-
-            val ref = database.getReference("groups/$normalizedGroupName")
 
     // Удаление из списка users
     val usersRef = ref.child("users")

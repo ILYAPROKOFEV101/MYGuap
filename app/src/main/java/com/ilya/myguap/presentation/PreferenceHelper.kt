@@ -94,6 +94,13 @@ object PreferenceHelper {
         return getSharedPreferences(context).getString(KEY_STRING_3, "")
     }
 
+    // Удаление groupId из SharedPreferences
+    fun removeGroupId(context: Context) {
+        val editor = getSharedPreferences(context).edit()
+        editor.remove(KEY_STRING_3) // Удаляем только ключ groupId
+        editor.apply() // Применяем изменения
+    }
+
 }
 
 
