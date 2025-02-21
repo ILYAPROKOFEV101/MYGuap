@@ -2,7 +2,18 @@ package com.ilya.myguap.Menu.ui.UI
 
 
 import android.content.Context
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.webkit.WebChromeClient
+import android.webkit.WebSettings
+import android.webkit.WebView
+import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,6 +24,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,8 +47,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.input.KeyboardType.Companion.Text
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.ilya.myguap.Menu.DataModel.GroupData
@@ -44,6 +59,7 @@ import com.ilya.reaction.logik.PreferenceHelper
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -52,33 +68,45 @@ fun GetGroupDataScreen(
     context: Context,
     currentUser: String
 ) {
-    // Получаем номер группы из настроек
     val groupNumber = PreferenceHelper.getidgroup(context)
     var groupData by remember { mutableStateOf<Map<String, Any?>?>(null) }
-    var isLoading by remember { mutableStateOf(true) } // Флаг загрузки
-    var isError by remember { mutableStateOf(false) } // Флаг ошибки
-    var isAdmin by remember { mutableStateOf(false) } // Является ли пользователь админом
-    var homeworks by remember { mutableStateOf<List<Pair<String, String>>?>(null) } // Домашние задания (название + описание)
+    var isLoading by remember { mutableStateOf(true) }
+    var isError by remember { mutableStateOf(false) }
+    var isAdmin by remember { mutableStateOf(false) }
+    var googletable by remember { mutableStateOf("") }
+    var navigation by remember { mutableStateOf("") }
+    var homeworks by remember { mutableStateOf<List<Pair<String, String>>?>(null) }
 
-    // Запускаем корутину с помощью LaunchedEffect
     LaunchedEffect(key1 = groupNumber) {
-        try {
-            // Получаем данные группы
-            groupData = viewModel.getGroupData(groupNumber.toString())
-            if (groupData != null) {
-                // Проверяем, является ли пользователь администратором
-                val admins = groupData?.get("админы") as? Map<*, *>
-                isAdmin = (admins?.get("главныйАдмин") == currentUser || (admins?.get("помощники") as? List<*>)?.contains(currentUser) == true)
-                // Получаем список домашних заданий
-                homeworks = groupData?.get("homeworks") as? List<Pair<String, String>>
-            } else {
+        viewModel.observeGroupData(
+            groupNumber.toString(),
+            onDataChange = { data ->
+                groupData = data
+                isLoading = false
+                isError = false
+                if (data != null) {
+                    val admins = data["админы"] as? Map<*, *>
+                    isAdmin = (admins?.get("главныйАдмин") == currentUser ||
+                            (admins?.get("помощники") as? List<*>)?.contains(currentUser) == true)
+                    // Извлекаем домашние задания
+                    val rawHomeworks = data["homeWork"] as? Map<String, String>
+                    homeworks = rawHomeworks?.map { (name, description) ->
+                        name to description
+                    }
+                    groupData?.let { data ->
+
+                        googletable = data["googletabel"].toString()
+
+                        navigation = data["navigation"].toString()
+                    }
+
+                }
+            },
+            onError = {
                 isError = true
+                isLoading = false
             }
-        } catch (e: Exception) {
-            isError = true
-        } finally {
-            isLoading = false // Загрузка завершена
-        }
+        )
     }
 
     Column(
@@ -88,6 +116,8 @@ fun GetGroupDataScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+
+
         Text(
             text = "Group Data",
             style = MaterialTheme.typography.headlineSmall,
@@ -96,59 +126,107 @@ fun GetGroupDataScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         if (isLoading) {
-            // Показываем индикатор загрузки
             CircularProgressIndicator(
                 modifier = Modifier.size(48.dp),
                 color = MaterialTheme.colorScheme.primary
             )
         } else if (isError) {
-            // Показываем сообщение об ошибке
             Text(
                 text = "Failed to load group data",
                 color = MaterialTheme.colorScheme.error
             )
         } else {
-            // Отображаем данные группы
-            groupData?.let { data ->
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Text("Главный админ: ${data["админы"]?.let { (it as? Map<*, *>)?.get("главныйАдмин") }}")
-                    Text("Помощники: ${data["админы"]?.let { (it as? Map<*, *>)?.get("помощники") ?: "None" }}")
-                    Text("Users: ${(data["users"] as? List<*>)?.joinToString(", ") ?: "None"}")
-                    Text("Google Sheet Link: ${data["googletabel"]}")
-                    Text("Community Link: ${data["communityLink"]}")
-                    Text("Navigation: ${data["navigation"]}")
-                    Spacer(modifier = Modifier.height(16.dp))
 
-                    // Если пользователь админ, показываем панель администратора
-                    if (isAdmin) {
-                        AdminPanelForHomeworks(
-                            viewModel = viewModel,
-                            groupNumber = groupNumber.toString(),
-                            onAddHomework = { homeworkName, description ->
-                                CoroutineScope(Dispatchers.IO).launch {
-                                    viewModel.addHomeWork(groupNumber.toString(), homeworkName, description)
-                                }
-                            }
-                        )
-                    }
 
-                    Spacer(modifier = Modifier.height(16.dp))
-                    // Просмотр списка домашних заданий
-                    Text(
-                        text = "Homeworks:",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    homeworks?.forEachIndexed { index, (name, description) ->
-                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text(text = "${index + 1}. $name", style = MaterialTheme.typography.titleSmall)
-                            Text(text = "Description: $description", style = MaterialTheme.typography.bodyMedium)
-                        }
-                    }
+        ExpandableWebView(googletable, "googletable")
+        Spacer(modifier = Modifier.height(40.dp))
+        ExpandableWebView(navigation, "navigation")
+
+
+
+
+        }
+    }
+}
+
+@Composable
+fun WebViewItem(url: String, initialScale: Int = 100) {
+    var webView: WebView? = remember { null }
+
+    AndroidView(
+        modifier = Modifier.fillMaxSize(),
+        factory = { context ->
+            WebView(context).apply {
+                layoutParams = ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT
+                )
+                settings.apply {
+                    javaScriptEnabled = true // Включение JavaScript
+                    domStorageEnabled = true // Включение DOM Storage для современных сайтов
+                    setSupportZoom(true) // Включение зума
+                    builtInZoomControls = true // Включение встроенных контроллеров зума
+                    displayZoomControls = false // Скрытие кнопок управления зумом
+                    loadWithOverviewMode = true // Адаптация контента под размер экрана
+                    useWideViewPort = true // Разрешение на использование широкого viewport
+                    mediaPlaybackRequiresUserGesture = false // Разрешение автовоспроизведения медиа
+                    allowFileAccess = true // Разрешение доступа к локальным файлам
+                    cacheMode = WebSettings.LOAD_DEFAULT // Использование кэширования
+                    setGeolocationEnabled(true) // Включение геолокации
                 }
+                setInitialScale(initialScale) // Установка начального масштаба
+                setLayerType(View.LAYER_TYPE_HARDWARE, null) // Включение аппаратного ускорения
+                webViewClient = WebViewClient() // Настройка клиента WebView
+                webChromeClient = WebChromeClient() // Поддержка Chrome-функций
+                loadUrl(url)
+                webView = this
             }
+        },
+        update = { webView ->
+            webView.loadUrl(url)
+        }
+    )
+
+    // Пример: Изменение масштаба через JavaScript
+    LaunchedEffect(Unit) {
+        delay(1000) // Через 5 секунд
+        webView?.evaluateJavascript("document.body.style.zoom = '0.7';", null) // Увеличение масштаба до 150%
+    }
+}
+
+
+
+@Composable
+fun ExpandableWebView(url: String, name: String) {
+    var isExpanded by remember { mutableStateOf(false) }
+    val size by animateDpAsState(targetValue = if (isExpanded) 800.dp else 100.dp)
+
+    // Состояние для отслеживания времени последнего клика
+    var lastClickTime by remember { mutableStateOf(0L) }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(size)
+            .background(MaterialTheme.colorScheme.surface)
+            .pointerInput(Unit) {
+                detectTapGestures(onTap = {
+                    val currentTime = System.currentTimeMillis()
+                    if (currentTime - lastClickTime < 300) { // Проверяем интервал между кликами
+                        isExpanded = !isExpanded // Переключаем состояние при двойном клике
+                    }
+                    lastClickTime = currentTime // Обновляем время последнего клика
+                })
+            }
+        
+    ) {
+        Text(
+            text = name,
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        if (isExpanded) {
+            WebViewItem(url)
         }
     }
 }

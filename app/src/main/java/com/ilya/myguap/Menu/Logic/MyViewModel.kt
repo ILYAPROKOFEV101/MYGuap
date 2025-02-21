@@ -222,6 +222,34 @@ class MyViewModel : ViewModel() {
     }
 
 
+    fun observeGroupData(
+        groupNumber: String,
+        onDataChange: (Map<String, Any?>?) -> Unit,
+        onError: () -> Unit
+    ) {
+        val normalizedGroupName = GroupNameNormalizer.normalize(groupNumber)
+        if (normalizedGroupName.isEmpty()) {
+            onError()
+            return
+        }
+
+        val ref = database.getReference("groups/$normalizedGroupName")
+        ref.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if (snapshot.exists()) {
+                    onDataChange(snapshot.value as? Map<String, Any?>)
+                } else {
+                    onDataChange(null)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+                onError()
+            }
+        })
+    }
+
+
     fun addUserToGroup(groupName: String, userId: String) {
         val normalizedGroupName = GroupNameNormalizer.normalize(groupName)
         val groupRef = FirebaseDatabase.getInstance().getReference("groups/$normalizedGroupName/users")

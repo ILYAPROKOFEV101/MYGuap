@@ -220,7 +220,7 @@ class MyViewModel : ViewModel() {
             false
         }
     }
-    
+
 
     fun addUserToGroup(groupName: String, userId: String) {
         val normalizedGroupName = GroupNameNormalizer.normalize(groupName)
