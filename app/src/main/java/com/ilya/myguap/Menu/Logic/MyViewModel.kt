@@ -66,7 +66,7 @@ class MyViewModel : ViewModel() {
                     "googletabel" to googleSheetLink,
                     "communityLink" to communityLink,
                     "navigation" to navigation,
-                    "guaplk" to "https://pro.guap.ru/"
+                    "guaplk" to "https://pro.guap.ru/inside/profile"
                 )
                 ref.setValue(newGroup).await()
                 Log.d("CreateGroup", "Группа $normalizedGroupName успешно создана со всеми полями.")

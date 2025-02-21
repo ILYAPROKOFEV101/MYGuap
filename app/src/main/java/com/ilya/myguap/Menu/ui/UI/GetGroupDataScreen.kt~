@@ -177,7 +177,7 @@ fun GetGroupDataScreen(
         Spacer(modifier = Modifier.height(10.dp))
         ExpandableWebView(navigation, "Навигации в здании")
         Spacer(modifier = Modifier.height(10.dp))
-        ExpandableWebView(guaplk, "личный кабинет ГУАП")
+        ExpandableWebView(guaplk, "Навигации в здании")
         Spacer(modifier = Modifier.height(10.dp))
         GroupScheduleScreen(ScheduleviewModel, groupNumber.toString())
         Spacer(modifier = Modifier.height(10.dp))
