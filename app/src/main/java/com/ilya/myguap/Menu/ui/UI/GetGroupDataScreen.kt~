@@ -252,7 +252,7 @@ fun ExpandableWebView(url: String, name: String) {
     }
 }
 
-// вот
+
 
 // Панель администратора для добавления домашних заданий
 @Composable

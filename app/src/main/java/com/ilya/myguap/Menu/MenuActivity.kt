@@ -81,6 +81,8 @@ class MenuActivity : ComponentActivity() {
             val nameofmygroup = PreferenceHelper.getidgroup(this)
             val name = PreferenceHelper.getfirstnamed(this)
             val lastname = PreferenceHelper.getlastnme(this)
+            val repository = ScheduleRepository(applicationContext)
+            val ScheduleviewModel: ScheduleViewModel = viewModel(factory = ScheduleViewModelFactory(repository))
             MyGuapTheme {
                     NavHost(
                         navController = navController,
@@ -91,15 +93,16 @@ class MenuActivity : ComponentActivity() {
                         }
                     ) {
                         composable("mygroup") {
-                            GetGroupDataScreen(viewModel = viewModel, context = this@MenuActivity, uid.toString())
+                            GetGroupDataScreen(viewModel = viewModel, context = this@MenuActivity, uid.toString(),ScheduleviewModel )
                         }
                         composable("registtion") {
                             RegistrationScreen(this@MenuActivity, onRegisterClicked = { fullName ->
                                 if(fullName != "") {
                                     if(nameofmygroup != ""){
                                         navController.navigate("mygroup")
-                                    } else
-                                    navController.navigate("start")
+                                    } else {
+                                        navController.navigate("start")
+                                    }
                                 }
                             })
                         }
@@ -122,9 +125,8 @@ class MenuActivity : ComponentActivity() {
                                 )
                         }
                         composable("Schedule") {
-                            val repository = ScheduleRepository(applicationContext)
-                            val viewModel: ScheduleViewModel = viewModel(factory = ScheduleViewModelFactory(repository))
-                            GroupScheduleScreen(viewModel)
+
+                            GroupScheduleScreen(ScheduleviewModel, nameofmygroup.toString())
                         }
                     }
 

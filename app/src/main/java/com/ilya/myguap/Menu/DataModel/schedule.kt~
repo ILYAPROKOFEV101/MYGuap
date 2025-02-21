@@ -1,39 +1,11 @@
 package com.ilya.myguap.Menu.DataModel
 
-data class schedule(
-    val С172: С172,
-    val С201: С172,
-    val С202: С172,
-    val С212: С172,
-    val С214: С172,
-    val С216: С172,
-    val С221: С172,
-    val С222: С172,
-    val С224: С172,
-    val С242: С172,
-    val С272: С172,
-    val С282: С172,
-    val С301: С172,
-    val С302: С172,
-    val С312: С172,
-    val С314: С172,
-    val С316: С172,
-    val С322: С172,
-    val С324: С172,
-    val С326: С172,
-    val С342: С172,
-    val С372: С172,
-    val С382: С172,
-    val С401: С172,
-    val С402: С172,
-    val С412: С172,
-    val С414: С172,
-    val С416: С172,
-    val С422: С172,
-    val С424: С172,
-    val С442: С172,
-    val С461: С172,
-    val С463: С172,
-    val С472: С172,
-    val С482: С172
+data class ScheduleDay(
+    val dayName: String,
+    val lessons: List<String>
+)
+
+data class GroupSchedule(
+    val numerator: List<ScheduleDay>, // Первая неделя числителя
+    val denominator: List<ScheduleDay> // Знаменатель (пустой)
 )
