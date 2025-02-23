@@ -20,16 +20,12 @@ import com.ilya.reaction.logik.PreferenceHelper
 @Composable
 fun RegistrationScreen(
     context: Context,
-    onRegisterClicked: (String) -> Unit
+    onRegisterClicked: (String) -> Unit // Колбэк для обработки регистрации
 ) {
-
-
     var groupNumber by remember { mutableStateOf("") }
     val background_color = if (isSystemInDarkTheme()) Color(0xFF191C20)
     else Color(0xFFFFFFFF)
-    val text = if (isSystemInDarkTheme())  Color(0xFFFFFFFF) else
-        Color(0xFF191C20)
-
+    val text = if (isSystemInDarkTheme()) Color(0xFFFFFFFF) else Color(0xFF191C20)
     var firstName by remember { mutableStateOf(TextFieldValue("")) }
     var lastName by remember { mutableStateOf(TextFieldValue("")) }
 
@@ -41,16 +37,15 @@ fun RegistrationScreen(
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Регистрация",
+            text = "Регистрация", // Заголовок экрана
             style = MaterialTheme.typography.headlineMedium
         )
-
         Spacer(modifier = Modifier.height(16.dp))
 
         TextField(
             value = firstName,
             onValueChange = { firstName = it },
-            label = { Text("Имя") },
+            label = { Text("Имя") }, // Метка для поля ввода имени
             colors = TextFieldDefaults.colors(
                 focusedTextColor = text, // Цвет текста при фокусе
                 unfocusedTextColor = text, // Цвет текста без фокуса
@@ -67,13 +62,12 @@ fun RegistrationScreen(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
-
         Spacer(modifier = Modifier.height(8.dp))
 
         TextField(
             value = lastName,
             onValueChange = { lastName = it },
-            label = { Text("Фамилия") },
+            label = { Text("Фамилия") }, // Метка для поля ввода фамилии
             colors = TextFieldDefaults.colors(
                 focusedTextColor = text, // Цвет текста при фокусе
                 unfocusedTextColor = text, // Цвет текста без фокуса
@@ -90,19 +84,21 @@ fun RegistrationScreen(
             modifier = Modifier.fillMaxWidth(),
             singleLine = true
         )
-
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                PreferenceHelper.savefirstname(context,firstName.toString() )
-                PreferenceHelper.savelastnme(context,lastName.toString() )
+                // Сохраняем имя и фамилию в настройках
+                PreferenceHelper.savefirstname(context, firstName.toString())
+                PreferenceHelper.savelastnme(context, lastName.toString())
+
+                // Формируем полное имя и передаём его через колбэк
                 val fullName = "${firstName.text} ${lastName.text}"
                 onRegisterClicked(fullName)
             },
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text(text = "Сохранить")
+            Text(text = "Сохранить") // Текст кнопки
         }
     }
 }

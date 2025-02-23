@@ -42,11 +42,16 @@ import kotlinx.coroutines.launch
 fun GroupScreen(
     viewModel: MyViewModel,
     context: Context,
-    uid: String
+    uid: String,
+    navController: NavController
+
 ) {
     var groupNumber by remember { mutableStateOf("") }
     var groupData by remember { mutableStateOf<Map<String, Any?>?>(null) }
     var showCreateGroupMenu by remember { mutableStateOf(false) }
+
+    val text = if (isSystemInDarkTheme()) Color.White else Color.Black
+    val background_color = if (isSystemInDarkTheme()) Color.Black else Color.White
 
     Column(
         modifier = Modifier
@@ -66,7 +71,20 @@ fun GroupScreen(
             value = groupNumber,
             onValueChange = { groupNumber = it },
             label = { Text("Group Number") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = text, // Цвет текста при фокусе
+                unfocusedTextColor = text, // Цвет текста без фокуса
+                focusedLabelColor = text, // Цвет метки при фокусе
+                unfocusedLabelColor = text, // Цвет метки без фокуса
+                focusedContainerColor = background_color, // Цвет фона при фокусе
+                unfocusedContainerColor = background_color, // Цвет фона без фокуса
+                focusedIndicatorColor = text, // Цвет рамки при фокусе
+                unfocusedIndicatorColor = Color.Transparent, // Прозрачная рамка без фокуса
+                cursorColor = text, // Цвет курсора
+                focusedPlaceholderColor = text, // Цвет плейсхолдера при фокусе
+                unfocusedPlaceholderColor = text // Цвет плейсхолдера без фокуса
+            ),
         )
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -129,6 +147,8 @@ fun GroupScreen(
         // Меню для создания группы
         if (showCreateGroupMenu) {
             Creat_Group(
+                navController = navController,
+                groupNumber,
                 viewModel = viewModel,
                 context = context,
                 uid = uid

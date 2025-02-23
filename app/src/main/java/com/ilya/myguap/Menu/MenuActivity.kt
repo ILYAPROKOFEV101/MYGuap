@@ -6,7 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -31,6 +34,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -83,6 +87,10 @@ class MenuActivity : ComponentActivity() {
             val lastname = PreferenceHelper.getlastnme(this)
             val repository = ScheduleRepository(applicationContext)
             val ScheduleviewModel: ScheduleViewModel = viewModel(factory = ScheduleViewModelFactory(repository))
+            val isDarkTheme = isSystemInDarkTheme()
+            val backgroundColor = if (isDarkTheme) Color(0xFF191C20) else Color.White
+            val textColor = if (isDarkTheme) Color.White else Color.Black
+
             MyGuapTheme {
                     NavHost(
                         navController = navController,
@@ -93,7 +101,17 @@ class MenuActivity : ComponentActivity() {
                         }
                     ) {
                         composable("mygroup") {
-                            GetGroupDataScreen(viewModel = viewModel, context = this@MenuActivity, uid.toString(),ScheduleviewModel, navController )
+                            Box(modifier = Modifier.fillMaxSize()
+                                .background(backgroundColor)
+                            ) {
+                                GetGroupDataScreen(
+                                    viewModel = viewModel,
+                                    context = this@MenuActivity,
+                                    uid.toString(),
+                                    ScheduleviewModel,
+                                    navController
+                                )
+                            }
                         }
                         composable("registtion") {
                             RegistrationScreen(this@MenuActivity, onRegisterClicked = { fullName ->

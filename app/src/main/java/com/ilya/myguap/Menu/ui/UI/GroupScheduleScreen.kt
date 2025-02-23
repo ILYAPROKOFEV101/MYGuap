@@ -6,6 +6,7 @@ import android.content.Context
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
@@ -19,9 +20,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -35,12 +41,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.PointerIcon.Companion.Text
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType.Companion.Text
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
@@ -63,25 +72,51 @@ fun GroupScheduleScreen(viewModel: ScheduleViewModel, groupName: String) {
 
     // Состояние для отслеживания времени последнего клика
     var lastClickTime by remember { mutableStateOf(0L) }
+    val isDarkTheme = isSystemInDarkTheme()
+    val backgroundColor = if (isDarkTheme) Color(0xFF191C20) else Color.White
+    val textColor = if (isDarkTheme) Color.White else Color.Black
+
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .height(size)
             .padding(16.dp)
-            .pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    val currentTime = System.currentTimeMillis()
-                    if (currentTime - lastClickTime < 300) { // Проверяем интервал между кликами
-                        isExpanded = !isExpanded // Переключаем состояние при двойном клике
-                    }
-                    lastClickTime = currentTime // Обновляем время последнего клика
-                })
-            }
+
         ,
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+
+        Button(
+            colors = ButtonDefaults.buttonColors(Color(0xFF03A9F4)),
+            onClick = { isExpanded = !isExpanded },
+            modifier = Modifier
+                .clip(RoundedCornerShape(10.dp))
+
+                .fillMaxWidth(),
+            shape = RoundedCornerShape(10.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "Расписание для группы $groupName",
+                    style = TextStyle(fontSize = 20.sp),
+                    color = textColor,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.weight(1f)
+                )
+                Icon(
+                    imageVector = if (isExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                    contentDescription = if (isExpanded) "Свернуть" else "Развернуть",
+                    tint = textColor,
+                    modifier = Modifier.padding(end = 8.dp)
+                )
+            }
+        }
 
 
 
@@ -90,13 +125,10 @@ fun GroupScheduleScreen(viewModel: ScheduleViewModel, groupName: String) {
 
         Spacer(modifier = Modifier.height(16.dp))
 
+
+
         // Отображение расписания
         if (groupSchedule != null) {
-            Text(
-                text = "Расписание для группы $groupName",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
 
             ScheduleTable(schedule = groupSchedule!!.numerator)
 
@@ -105,6 +137,9 @@ fun GroupScheduleScreen(viewModel: ScheduleViewModel, groupName: String) {
         } else if (groupName.isNotEmpty()) {
             Text("Расписание для группы $groupName не найдено")
         }
+
+
+
     }
 }
 
@@ -112,6 +147,12 @@ fun GroupScheduleScreen(viewModel: ScheduleViewModel, groupName: String) {
 @Composable
 fun ScheduleTable(schedule: List<List<List<String>>>) {
     Log.d("ScheduleTable", "Schedule: $schedule")
+
+    // Определяем текущую тему (темная или светлая)
+    val isDarkTheme = isSystemInDarkTheme()
+    val backgroundColor = if (isDarkTheme) Color(0xFF191C20) else Color.White
+    val textColor = if (isDarkTheme) Color.White else Color.Black
+    val cardColor = if (isDarkTheme) Color(0xFF2B2E33) else Color(0xFFF5F5F5)
 
     // Определяем текущий день недели
     val currentDayOfWeek = LocalDate.now().dayOfWeek
@@ -154,7 +195,9 @@ fun ScheduleTable(schedule: List<List<List<String>>>) {
     }
 
     Column(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor), // Устанавливаем фоновый цвет в зависимости от темы
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         // Заголовок числителя/знаменателя
@@ -167,13 +210,17 @@ fun ScheduleTable(schedule: List<List<List<String>>>) {
         ) {
             Text(
                 text = weekText,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium.copy(color = textColor), // Цвет текста зависит от темы
                 modifier = Modifier.padding(vertical = 8.dp)
             )
             Button(
                 onClick = {
                     isEvenSunday = !isEvenSunday // Переключаем состояние
                 },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = cardColor, // Цвет кнопки зависит от темы
+                    contentColor = textColor // Цвет текста на кнопке
+                ),
                 modifier = Modifier.padding(end = 8.dp)
             ) {
                 Text(
@@ -195,11 +242,13 @@ fun ScheduleTable(schedule: List<List<List<String>>>) {
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(vertical = 4.dp)
+                            .background(cardColor) // Цвет карточки зависит от темы
+                            .padding(8.dp)
                     ) {
                         // Заголовок дня недели
                         Text(
                             text = day.first(),
-                            style = MaterialTheme.typography.titleSmall,
+                            style = MaterialTheme.typography.titleSmall.copy(color = textColor), // Цвет текста зависит от темы
                             modifier = Modifier.padding(bottom = 4.dp)
                         )
                         // Список занятий
@@ -212,7 +261,8 @@ fun ScheduleTable(schedule: List<List<List<String>>>) {
                                 val time = lessonTimes.getOrNull(lessonIndex) ?: "Время не указано"
                                 Text(
                                     text = "$time: $lesson",
-                                    style = MaterialTheme.typography.bodyMedium
+                                    style = MaterialTheme.typography.bodyMedium.copy(color = textColor), // Цвет текста зависит от темы
+                                    modifier = Modifier.padding(vertical = 2.dp)
                                 )
                             }
                         }

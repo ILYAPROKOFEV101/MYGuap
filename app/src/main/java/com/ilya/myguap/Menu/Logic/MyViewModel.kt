@@ -65,7 +65,7 @@ class MyViewModel : ViewModel() {
                     "homeWork" to emptyMap<String, String>(),   // Пустое поле для домашних заданий
                     "googletabel" to googleSheetLink,
                     "communityLink" to communityLink,
-                    "navigation" to navigation,
+                    "navigation" to "https://qr.tango.vision/64fee81ead02ce1d7c145b1b",
                     "guaplk" to "https://pro.guap.ru/inside/profile"
                 )
                 ref.setValue(newGroup).await()

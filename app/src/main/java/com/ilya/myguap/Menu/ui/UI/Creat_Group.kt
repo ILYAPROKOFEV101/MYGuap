@@ -2,6 +2,7 @@ package com.ilya.myguap.Menu.ui.UI
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,128 +41,111 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Creat_Group(
+    navController: NavController,
+    maingroupNumber: String,
     viewModel: MyViewModel,
     modifier: Modifier = Modifier,
     context: Context,
     uid: String,
-    onGroupCreated: (Boolean) -> Unit // Колбэк для уведомления о результате
+    onGroupCreated: (Boolean) -> Unit, // Колбэк для уведомления о результате
 ) {
-    val background_color = if (isSystemInDarkTheme()) Color(0xFF191C20) else Color(0xFFFFFFFF)
-    val text = if (isSystemInDarkTheme()) Color(0xFFFFFFFF) else Color(0xFF191C20)
+    val isDarkTheme = isSystemInDarkTheme()
+    val background_color = if (isDarkTheme) Color(0xFF191C20) else Color(0xFFFFFFFF)
+    val text_color = if (isDarkTheme) Color(0xFFFFFFFF) else Color(0xFF191C20)
 
     var groupNumber by remember { mutableStateOf("") }
     var googleSheetLink by remember { mutableStateOf("") }
     var communityLink by remember { mutableStateOf("") }
     var navigator by remember { mutableStateOf("") }
+    groupNumber = maingroupNumber
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(16.dp)
+            .background(MaterialTheme.colorScheme.background), // Используем цвет фона из MaterialTheme
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Create New Group",
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.onBackground
+            text = "Создать новую группу",
+            style = MaterialTheme.typography.headlineSmall.copy(
+                color = MaterialTheme.colorScheme.onBackground // Цвет текста зависит от темы
+            )
         )
         Spacer(modifier = Modifier.height(16.dp))
 
         OutlinedTextField(
             value = groupNumber,
             onValueChange = { groupNumber = it },
-            label = { Text("Group Number") },
+            label = {
+                Text(
+                    text = "Название группы",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant // Цвет текста метки
+                    )
+                )
+            },
             colors = TextFieldDefaults.colors(
-                focusedTextColor = text,
-                unfocusedTextColor = text,
-                focusedLabelColor = text,
-                unfocusedLabelColor = text,
-                focusedContainerColor = background_color,
-                unfocusedContainerColor = background_color,
-                focusedIndicatorColor = text,
+                focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.surface, // Цвет фона поля ввода
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary, // Цвет индикатора
                 unfocusedIndicatorColor = Color.Transparent,
-                cursorColor = text,
-                focusedPlaceholderColor = text,
-                unfocusedPlaceholderColor = text
+                cursorColor = MaterialTheme.colorScheme.onBackground,
+                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
             ),
             modifier = Modifier.fillMaxWidth()
         )
+
         Spacer(modifier = Modifier.height(8.dp))
+
         OutlinedTextField(
             value = googleSheetLink,
             onValueChange = { googleSheetLink = it },
-            label = { Text("Google Sheet Link") },
+            label = {
+                Text(
+                    text = "Ссылка на Google Таблицу с оценками",
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                )
+            },
             colors = TextFieldDefaults.colors(
-                focusedTextColor = text,
-                unfocusedTextColor = text,
-                focusedLabelColor = text,
-                unfocusedLabelColor = text,
-                focusedContainerColor = background_color,
-                unfocusedContainerColor = background_color,
-                focusedIndicatorColor = text,
+                focusedTextColor = MaterialTheme.colorScheme.onBackground,
+                unfocusedTextColor = MaterialTheme.colorScheme.onBackground,
+                focusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                unfocusedLabelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                focusedContainerColor = MaterialTheme.colorScheme.surface,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+                focusedIndicatorColor = MaterialTheme.colorScheme.primary,
                 unfocusedIndicatorColor = Color.Transparent,
-                cursorColor = text,
-                focusedPlaceholderColor = text,
-                unfocusedPlaceholderColor = text
+                cursorColor = MaterialTheme.colorScheme.onBackground,
+                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurfaceVariant
             ),
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(8.dp))
-        OutlinedTextField(
-            value = communityLink,
-            onValueChange = { communityLink = it },
-            label = { Text("Community Link") },
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = text,
-                unfocusedTextColor = text,
-                focusedLabelColor = text,
-                unfocusedLabelColor = text,
-                focusedContainerColor = background_color,
-                unfocusedContainerColor = background_color,
-                focusedIndicatorColor = text,
-                unfocusedIndicatorColor = Color.Transparent,
-                cursorColor = text,
-                focusedPlaceholderColor = text,
-                unfocusedPlaceholderColor = text
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
-        Spacer(modifier = Modifier.height(16.dp))
-        OutlinedTextField(
-            value = navigator,
-            onValueChange = { navigator = it },
-            label = { Text("Navigator") },
-            colors = TextFieldDefaults.colors(
-                focusedTextColor = text,
-                unfocusedTextColor = text,
-                focusedLabelColor = text,
-                unfocusedLabelColor = text,
-                focusedContainerColor = background_color,
-                unfocusedContainerColor = background_color,
-                focusedIndicatorColor = text,
-                unfocusedIndicatorColor = Color.Transparent,
-                cursorColor = text,
-                focusedPlaceholderColor = text,
-                unfocusedPlaceholderColor = text
-            ),
-            modifier = Modifier.fillMaxWidth()
-        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         Button(
             onClick = {
-                if (groupNumber.isNotEmpty() && googleSheetLink.isNotEmpty() && communityLink.isNotEmpty()) {
-                    // Запускаем корутину для вызова suspend-функции
+                if (groupNumber.isNotEmpty() && googleSheetLink.isNotEmpty()) {
                     CoroutineScope(Dispatchers.Main).launch {
                         val isCreated = viewModel.createGroup(groupNumber, uid, googleSheetLink, navigator, communityLink)
-                        onGroupCreated(isCreated) // Передаем результат через колбэк
-                        if(isCreated) {
+                        onGroupCreated(isCreated)
+                        if (isCreated) {
                             PreferenceHelper.saveidgroup(context, groupNumber)
+                            navController.navigate("mygroup")
                         }
                     }
                 } else {
-                    Toast.makeText(context, "Please fill all fields", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Пожалуйста, заполните все поля", Toast.LENGTH_SHORT).show()
                 }
             },
             colors = ButtonDefaults.buttonColors(
@@ -169,7 +153,12 @@ fun Creat_Group(
                 contentColor = MaterialTheme.colorScheme.onPrimary
             )
         ) {
-            Text("Create Group")
+            Text(
+                text = "Создать группу",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    color = MaterialTheme.colorScheme.onPrimary // Цвет текста кнопки
+                )
+            )
         }
     }
 }

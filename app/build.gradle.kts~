@@ -57,11 +57,15 @@ dependencies {
     implementation ("androidx.navigation:navigation-compose:2.9.0-alpha06")
 
 
-    // fierbase
-    implementation("com.google.firebase:firebase-database-ktx:21.0.0") // Пример конкретной версии
-    implementation (libs.google.firebase.database.ktx) // Firebase Realtime Database
+    // Firebase BOM
+    implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
 
+    // Firebase dependencies
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-database-ktx")
+    implementation("com.google.android.gms:play-services-auth:21.2.0")
 
+    
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

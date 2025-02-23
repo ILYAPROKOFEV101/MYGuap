@@ -48,6 +48,9 @@ fun GroupInputScreen(
         var studentName by remember { mutableStateOf("") }
         var taskName by remember { mutableStateOf("") }
         var taskDescription by remember { mutableStateOf("") }
+    val background_color = if (isSystemInDarkTheme()) Color(0xFF191C20)
+    else Color(0xFFFFFFFF)
+    val text = if (isSystemInDarkTheme()) Color(0xFFFFFFFF) else Color(0xFF191C20)
 
         Column(
             modifier = modifier
@@ -67,7 +70,20 @@ fun GroupInputScreen(
                 value = groupNumber,
                 onValueChange = { groupNumber = it },
                 label = { Text("Group Number") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = text, // Цвет текста при фокусе
+                    unfocusedTextColor = text, // Цвет текста без фокуса
+                    focusedLabelColor = text, // Цвет метки при фокусе
+                    unfocusedLabelColor = text, // Цвет метки без фокуса
+                    focusedContainerColor = background_color, // Цвет фона при фокусе
+                    unfocusedContainerColor = background_color, // Цвет фона без фокуса
+                    focusedIndicatorColor = text, // Цвет рамки при фокусе
+                    unfocusedIndicatorColor = Color.Transparent, // Прозрачная рамка без фокуса
+                    cursorColor = text, // Цвет курсора
+                    focusedPlaceholderColor = text, // Цвет плейсхолдера при фокусе
+                    unfocusedPlaceholderColor = text // Цвет плейсхолдера без фокуса
+                ),
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -76,7 +92,20 @@ fun GroupInputScreen(
                 value = subjectName,
                 onValueChange = { subjectName = it },
                 label = { Text("Subject Name") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = text, // Цвет текста при фокусе
+                    unfocusedTextColor = text, // Цвет текста без фокуса
+                    focusedLabelColor = text, // Цвет метки при фокусе
+                    unfocusedLabelColor = text, // Цвет метки без фокуса
+                    focusedContainerColor = background_color, // Цвет фона при фокусе
+                    unfocusedContainerColor = background_color, // Цвет фона без фокуса
+                    focusedIndicatorColor = text, // Цвет рамки при фокусе
+                    unfocusedIndicatorColor = Color.Transparent, // Прозрачная рамка без фокуса
+                    cursorColor = text, // Цвет курсора
+                    focusedPlaceholderColor = text, // Цвет плейсхолдера при фокусе
+                    unfocusedPlaceholderColor = text // Цвет плейсхолдера без фокуса
+                ),
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -85,7 +114,20 @@ fun GroupInputScreen(
                 value = labNumber,
                 onValueChange = { labNumber = it },
                 label = { Text("Lab Number") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = text, // Цвет текста при фокусе
+                    unfocusedTextColor = text, // Цвет текста без фокуса
+                    focusedLabelColor = text, // Цвет метки при фокусе
+                    unfocusedLabelColor = text, // Цвет метки без фокуса
+                    focusedContainerColor = background_color, // Цвет фона при фокусе
+                    unfocusedContainerColor = background_color, // Цвет фона без фокуса
+                    focusedIndicatorColor = text, // Цвет рамки при фокусе
+                    unfocusedIndicatorColor = Color.Transparent, // Прозрачная рамка без фокуса
+                    cursorColor = text, // Цвет курсора
+                    focusedPlaceholderColor = text, // Цвет плейсхолдера при фокусе
+                    unfocusedPlaceholderColor = text // Цвет плейсхолдера без фокуса
+                ),
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -94,7 +136,20 @@ fun GroupInputScreen(
                 value = studentName,
                 onValueChange = { studentName = it },
                 label = { Text("Student Name") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = text, // Цвет текста при фокусе
+                    unfocusedTextColor = text, // Цвет текста без фокуса
+                    focusedLabelColor = text, // Цвет метки при фокусе
+                    unfocusedLabelColor = text, // Цвет метки без фокуса
+                    focusedContainerColor = background_color, // Цвет фона при фокусе
+                    unfocusedContainerColor = background_color, // Цвет фона без фокуса
+                    focusedIndicatorColor = text, // Цвет рамки при фокусе
+                    unfocusedIndicatorColor = Color.Transparent, // Прозрачная рамка без фокуса
+                    cursorColor = text, // Цвет курсора
+                    focusedPlaceholderColor = text, // Цвет плейсхолдера при фокусе
+                    unfocusedPlaceholderColor = text // Цвет плейсхолдера без фокуса
+                ),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -137,7 +192,20 @@ fun GroupInputScreen(
                 value = taskName,
                 onValueChange = { taskName = it },
                 label = { Text("Task Name") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = text, // Цвет текста при фокусе
+                    unfocusedTextColor = text, // Цвет текста без фокуса
+                    focusedLabelColor = text, // Цвет метки при фокусе
+                    unfocusedLabelColor = text, // Цвет метки без фокуса
+                    focusedContainerColor = background_color, // Цвет фона при фокусе
+                    unfocusedContainerColor = background_color, // Цвет фона без фокуса
+                    focusedIndicatorColor = text, // Цвет рамки при фокусе
+                    unfocusedIndicatorColor = Color.Transparent, // Прозрачная рамка без фокуса
+                    cursorColor = text, // Цвет курсора
+                    focusedPlaceholderColor = text, // Цвет плейсхолдера при фокусе
+                    unfocusedPlaceholderColor = text // Цвет плейсхолдера без фокуса
+                ),
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -146,7 +214,20 @@ fun GroupInputScreen(
                 value = taskDescription,
                 onValueChange = { taskDescription = it },
                 label = { Text("Task Description") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                colors = TextFieldDefaults.colors(
+                    focusedTextColor = text, // Цвет текста при фокусе
+                    unfocusedTextColor = text, // Цвет текста без фокуса
+                    focusedLabelColor = text, // Цвет метки при фокусе
+                    unfocusedLabelColor = text, // Цвет метки без фокуса
+                    focusedContainerColor = background_color, // Цвет фона при фокусе
+                    unfocusedContainerColor = background_color, // Цвет фона без фокуса
+                    focusedIndicatorColor = text, // Цвет рамки при фокусе
+                    unfocusedIndicatorColor = Color.Transparent, // Прозрачная рамка без фокуса
+                    cursorColor = text, // Цвет курсора
+                    focusedPlaceholderColor = text, // Цвет плейсхолдера при фокусе
+                    unfocusedPlaceholderColor = text // Цвет плейсхолдера без фокуса
+                ),
             )
 
             Spacer(modifier = Modifier.height(16.dp))

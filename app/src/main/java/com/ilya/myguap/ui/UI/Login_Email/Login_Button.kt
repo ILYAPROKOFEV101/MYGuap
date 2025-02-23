@@ -2,6 +2,7 @@ package com.yourmood.yourmood.ui.UI.Login_Email
 
 
 import android.content.Context
+import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -26,7 +27,9 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat.startActivity
 import com.google.firebase.auth.FirebaseAuth
+import com.ilya.myguap.Menu.MenuActivity
 import com.ilya.myguap.R
 import com.yourmood.yourmood.presentation.sign_in.registerUser
 
@@ -51,8 +54,11 @@ fun Login(
                     isLoading = false // Скрываем индикатор загрузки
                     if (!success) {
                         // Обработка ошибки регистрации
+
                         Toast.makeText(context, "Ошибка регистрации", Toast.LENGTH_SHORT).show()
                     }
+                    val intent = Intent(context, MenuActivity::class.java)
+                    startActivity(context, intent, null)
                 }
             } else {
                 Toast.makeText(context, "Заполните все поля", Toast.LENGTH_SHORT).show()

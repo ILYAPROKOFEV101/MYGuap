@@ -3,6 +3,7 @@ package com.ilya.myguap.Menu.ui.UI
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -48,50 +49,60 @@ fun StartScreen(
     navController: NavController
 ) {
     var groupNumber by remember { mutableStateOf("") }
+    val mygruop = PreferenceHelper.getidgroup(context)
     var groupData by remember { mutableStateOf<Map<String, Any?>?>(null) }
     var showCreateGroupMenu by remember { mutableStateOf(false) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
-
+    val background_color = if (isSystemInDarkTheme()) Color(0xFF191C20)
+    else Color(0xFFFFFFFF)
+    val text = if (isSystemInDarkTheme()) Color(0xFFFFFFFF) else Color(0xFF191C20)
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(background_color)
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
         Text(
-            text = "Enter Group Name",
+            text = "Введите название группы",
             style = MaterialTheme.typography.headlineMedium,
-            color = MaterialTheme.colorScheme.onBackground
+            color = text
         )
         Spacer(modifier = Modifier.height(16.dp))
-
         // Поле ввода для названия группы
         OutlinedTextField(
             value = groupNumber,
             onValueChange = { groupNumber = it },
-            label = { Text("Group Name") },
-            placeholder = { Text("e.g., uhggs") },
+            label = { Text("Название группы") },
+            placeholder = { Text("например, с312") },
             singleLine = true,
             modifier = Modifier.fillMaxWidth(),
-            colors = TextFieldDefaults.outlinedTextFieldColors(
-                focusedBorderColor = MaterialTheme.colorScheme.primary,
-                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f)
-            )
+            colors = TextFieldDefaults.colors(
+                focusedTextColor = text, // Цвет текста при фокусе
+                unfocusedTextColor = text, // Цвет текста без фокуса
+                focusedLabelColor = text, // Цвет метки при фокусе
+                unfocusedLabelColor = text, // Цвет метки без фокуса
+                focusedContainerColor = background_color, // Цвет фона при фокусе
+                unfocusedContainerColor = background_color, // Цвет фона без фокуса
+                focusedIndicatorColor = text, // Цвет рамки при фокусе
+                unfocusedIndicatorColor = background_color, // Прозрачная рамка без фокуса
+                cursorColor = text, // Цвет курсора
+                focusedPlaceholderColor = text, // Цвет плейсхолдера при фокусе
+                unfocusedPlaceholderColor = text // Цвет плейсхолдера без фокуса
+            ),
         )
-
         Spacer(modifier = Modifier.height(16.dp))
-
         // Кнопка поиска группы
         Button(
             onClick = {
                 if (groupNumber.isEmpty()) {
-                    errorMessage = "Please enter a group name."
+                    errorMessage = "Пожалуйста, введите название группы."
                 } else {
                     CoroutineScope(Dispatchers.Main).launch {
                         groupData = viewModel.getGroupData(groupNumber)
                         if (groupData == null) {
-                            errorMessage = "Group not found. You can create a new one."
+                            errorMessage = "Группа не найдена. Вы можете создать новую."
                             showCreateGroupMenu = true
                         } else {
                             errorMessage = null
@@ -105,11 +116,9 @@ fun StartScreen(
             ),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Search Group")
+            Text("Поиск группы")
         }
-
         Spacer(modifier = Modifier.height(16.dp))
-
         // Отображение ошибок
         errorMessage?.let { message ->
             Text(
@@ -120,7 +129,6 @@ fun StartScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
         }
-
         // Отображение информации о группе, если она найдена
         groupData?.let { data ->
             Column(
@@ -130,27 +138,18 @@ fun StartScreen(
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Text(
-                    text = "Group Information:",
+                    text = "Такая группа есть",
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onBackground
                 )
                 Divider(color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f))
-                Text("Main Admin: ${data["админы"]?.let { (it as? Map<*, *>)?.get("главныйАдмин") }}")
-                Text("Assistants: ${data["админы"]?.let { (it as? Map<*, *>)?.get("помощники") ?: "None" }}")
-                Text("Users: ${(data["users"] as? List<*>)?.joinToString(", ") ?: "None"}")
-                Text("Google Sheet Link: ${data["googletabel"]}")
-                Text("Community Link: ${data["communityLink"]}")
-                Text("Navigation: ${data["navigation"]}")
-
                 Spacer(modifier = Modifier.height(16.dp))
-
                 // Кнопка присоединения к группе
                 Button(
                     onClick = {
                         CoroutineScope(Dispatchers.IO).launch {
                             viewModel.addUserToGroup(groupNumber, uid)
                             PreferenceHelper.saveidgroup(context, groupNumber)
-
                         }
                         navController.navigate("mygroup")
                     },
@@ -160,25 +159,41 @@ fun StartScreen(
                     ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text("Join Group")
+                    Text("Присоединиться к группе")
                 }
+                if(mygruop != ""){
+                    Button(
+                        onClick = {
+                            navController.navigate("mygroup")
+                        },
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSecondary
+                        ),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Вернуться в группу")
+                    }
+                }
+
+
             }
         }
-
         Spacer(modifier = Modifier.height(20.dp))
-
         // Меню для создания группы
         if (showCreateGroupMenu) {
             Creat_Group(
+                navController,
+                groupNumber,
                 viewModel = viewModel,
                 context = context,
-                uid = uid
+                uid = uid,
             ) { isCreated ->
                 if (isCreated) {
-                    Toast.makeText(context, "Group created successfully!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Группа успешно создана!", Toast.LENGTH_SHORT).show()
                     showCreateGroupMenu = false
                 } else {
-                    Toast.makeText(context, "Failed to create group.", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context, "Не удалось создать группу.", Toast.LENGTH_SHORT).show()
                 }
             }
         }
